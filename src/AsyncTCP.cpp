@@ -1244,6 +1244,11 @@ void AsyncServer::begin()
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) return;
 
+    int yes = 1;
+    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
+      log_e("setsockopt error: %d - %s", errno, strerror(errno));
+    }
+
     struct sockaddr_in server;
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = (uint32_t) _addr;
@@ -1299,3 +1304,9 @@ void AsyncServer::_sockIsReadable(void)
     }
 }
 
+uint8_t AsyncServer::status() const {
+    if (_socket == -1) {
+      return 0;
+    }
+    return 1;
+}
